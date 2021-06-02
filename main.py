@@ -1,5 +1,8 @@
-import sys
+import nltk
+from nltk.stem import SnowballStemmer
 
+
+stemmer = SnowballStemmer('spanish')
 
 def loadUneccesaryChar():
     file = "texts/stoplist.txt"
@@ -31,12 +34,12 @@ def read_documents(book):
     file = "texts/books/libro" + str(book) + ".txt"
     f = open(file, encoding="utf-8")
     out = open("texts/preprocessing/libro" + str(book) + ".txt", "w+", encoding="utf-8")
-    stopList = loadStopList()
+    stoplist = loadStopList()
     for line in f:
-        if (line != "\n"):
+        if line != "\n":
             for word in parse(line):
-                if(word.lower() not in stopList):
-                    out.write(word.lower() + " ")
+                if word.lower() not in stoplist:
+                    out.write(stemmer.stem(word.lower()) + " ")
     f.close()
     out.close()
 
