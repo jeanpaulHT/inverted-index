@@ -4,7 +4,7 @@ stemmer = SnowballStemmer('spanish')
 
 
 def loadUneccesaryElemts():
-    s = {".", "?", "!", "¿", "<", ">", ",", "º", " ", ":", ";", "«", "»"}
+    s = {".", "?", "!", "¿", "<", ">", ",", "º", " ", ":", ";", "«", "»", "(", ")"}
 
     return s
 
@@ -39,10 +39,12 @@ def preprocess_documents(book):
     for line in f:
         if line != "\n" and line != " ":
             for word in parse(line):
-                if word.lower() not in stoplist:
+                if word.lower() not in stoplist and not word.isnumeric() :
                     out.write(stemmer.stem(word.lower()) + "\n")
     f.close()
     out.close()
+
+
 
 
 
