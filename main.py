@@ -1,4 +1,5 @@
 from preprocesamiento import preproccesing
+from sortedcontainers import SortedSet
 
 def creatingFrequency():
     words = {}
@@ -11,16 +12,17 @@ def creatingFrequency():
                     words[word][0] = words[word][0] + 1
                     if book not in words[word][1]:
                         words[word][1].append(book)
-
                 else:
                     words[word] = [1, [book]]
-
-    print("a")
+    sorted_x = sorted(words.items(), key=lambda kv: -kv[1][0])
+    filtered = sorted_x[:500]
+    result = sorted(filtered, key=lambda item:item[0])
+    print(result)
 
 
 
 if __name__ == "__main__":
-    # preprocesamiento.preproccesing()
+    preproccesing()
     print("running main....")
     creatingFrequency()
 
