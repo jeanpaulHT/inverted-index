@@ -1,22 +1,6 @@
-from preprocesamiento import preproccesing
+from preprocesamiento import preProccesing
 
-def creatingFrequency():
-    words = {}
-    for book in range(1,7):
-        f = open("texts/preprocessing/libro" + str(book) + ".txt", encoding="utf-8")
-        for word in f:
-            if word != " " and word != "\n":
-                word = word[:-1]
-                if word in words:
-                    words[word][0] = words[word][0] + 1
-                    if book not in words[word][1]:
-                        words[word][1].append(book)
-                else:
-                    words[word] = [1, [book]]
-    sorted_x = sorted(words.items(), key=lambda kv: -kv[1][0])
-    filtered = sorted_x[:500]
-    result = sorted(filtered, key=lambda item:item[0])
-    return result
+
 
 
 def writingFreqFile(freqList,file):
@@ -31,14 +15,79 @@ def writingFreqFile(freqList,file):
             comma = True
         f.write(line+'\n')
 
+
+def l_and(arg1, arg2):
+    res = []
+    index1 = 0
+    index2 = 0
+
+    while index1 < len(arg1) and index2 < len(arg2):
+        if(arg1[index1] == arg2[index2]):
+            res.append(arg1[index1])
+            index1+=1
+            index2+=1
+        elif (arg1[index1] < arg2[index2]):
+            index1+=1
+        else:
+            index2+=1
+    return res
+
+def l_or(arg1, arg2):
+    res = []
+    index1 = 0
+    index2 = 0
+
+    while index1 < len(arg1) or index2 < len(arg2):
+        if(index1 < len(arg1) and index2 < len(arg2)):
+            if(arg1[index1] == arg2[index2]):
+                res.append(arg1[index1])
+                index1+=1
+                index2+=1
+            elif (arg1[index1] < arg2[index2]):
+                res.append(arg1[index1])
+                index1+=1
+            else:
+                res.append(arg2[index2])
+                index2+=1
+        else:
+            if(index2 == len(arg2)):
+                res.append(arg1[index1])
+                index1+=1
+            else:
+                res.append(arg2[index2])
+                index2+=1
+    return res
+
+
+def l_and_not(arg1, arg2):
+    res = []
+    index1 = 0
+    index2 = 0
+
+    while index1 < len(arg1):
+        if(arg1[index1] == arg2[index2]):
+            index1+=1
+            index2+=1
+        elif (arg1[index1] < arg2[index2]):
+            res.append(arg1[index1])
+            index1 += 1
+        else:
+            index2 += 1
+    return res
+
 if __name__ == "__main__":
-    # preproccesing()
-    print("creating frequency list....")
-    result = creatingFrequency()
-    print("frequency done")
-    file = "frequency.txt"
-    print("creating file for frequency list....")
-    writingFreqFile(result,file)
+    i = preProccesing()
+    i.creatingFrequency()
+    term1 = i.L("Bilbo")
+    term2 = i.L("Anillo")
+
+
+
+    print(l_and(term1, term2 ) )
+    print(l_or(term1, term2 ) )
+    print(l_and_not(term2, term1 ) )
+
+
 
 
 
