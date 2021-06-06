@@ -1,7 +1,4 @@
-from preprocesamiento import preProccesing
-
-
-
+from preprocesamiento import Preprocessor
 
 def writingFreqFile(freqList,file):
     f = open(file, "w+", encoding="utf-8")
@@ -76,10 +73,11 @@ def l_and_not(arg1, arg2):
     return res
 
 if __name__ == "__main__":
-    i = preProccesing()
-    i.creatingFrequency()
-    term1 = i.L("Bilbo")
-    term2 = i.L("Anillo")
+    preprocessor = Preprocessor()
+    preprocessor.preprocess()
+    preprocessor.create_frequency_table()
+    term1 = preprocessor.L("Bilbo")
+    term2 = preprocessor.L("Anillo")
 
 
 
