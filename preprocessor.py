@@ -50,6 +50,6 @@ class Preprocessor:
             book, out = self.in_dir + file, self.out_dir + file
             out_files.append(out)
             self.preprocess_file(book, out)
-            print("document " + file + " preproccesing done")
+            # print("document " + file + " preproccesing done")
 
         return out_files
