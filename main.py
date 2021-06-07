@@ -1,5 +1,5 @@
-from preprocessor import Preprocessor
 from index import Index
+from preprocessor import Preprocessor
 from queries import Query
 
 
@@ -36,4 +36,5 @@ if __name__ == "__main__":
     # print(query_and(term2, term3))
     # print(query_or(term1, term3))
 
-    # query = Query(_index, "Fangorn or (Bilbo and not Montaña) or (Montaña and not Bilbo)")
+    # query = Query(
+    #   _index, "Fangorn or (Bilbo and not Montaña) or (Montaña and not Bilbo)")

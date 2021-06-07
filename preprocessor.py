@@ -1,6 +1,8 @@
 from nltk.stem import SnowballStemmer
 from typing import *
 
+import os
+
 
 class Preprocessor:
     skipped_symbols = {".", "?", "!", "¿", "<", ">", ",", "º", " ", ":", ";", "«", "»", "(", ")", "\n", "\0"}
@@ -10,6 +12,8 @@ class Preprocessor:
         self.stop_list = self._load_stop_list(stop_list_path)
         self.in_dir = f"./{in_dir}/"
         self.out_dir = f"./{out_dir}/"
+        if not os.path.exists(self.out_dir):
+            os.makedirs(self.out_dir)
 
     def preprocess(self, files: Iterable[str]):
         out_files = []
