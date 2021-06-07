@@ -1,5 +1,5 @@
 from preprocessor import Preprocessor
-from queries import QueryEngine
+from index import Index
 
 
 def write_index_to_file(index, file):
@@ -79,14 +79,16 @@ if __name__ == "__main__":
     preprocessor = Preprocessor(book_dir, out_dir, stop_list)
     out_files = preprocessor.preprocess(books)
 
-    engine = QueryEngine(out_files)
+    engine = Index(out_files)
 
     term1 = engine.L("Bilbo")
     term2 = engine.L("Anillo")
+    term3 = engine.L("Montaña")
 
     print(l_and(term1, term2))
     print(l_or(term1, term2))
     print(l_and_not(term2, term1))
+    print(l_and(term2, term3))
+    print(l_or(term1, term3))
 
-    print(engine.inverted_index)
     write_index_to_file(engine.inverted_index, index_file)

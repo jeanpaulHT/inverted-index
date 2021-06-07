@@ -1,6 +1,7 @@
 from nltk.stem import SnowballStemmer
 
-class QueryEngine:
+
+class Index:
     inverted_index = {}
 
     def _make_inverted_index(self, book_names):
