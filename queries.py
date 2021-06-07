@@ -73,9 +73,15 @@ class Query:
         processed = processed.replace("(", " ( ").replace(")", " ) ")
         self.tokens = deque(processed.split())
         self.index = index
+        self.cache = dict()
 
     def L(self, word):
-        return self.index.L(word)
+        if word in self.cache:
+            return self.cache[word]
+
+        return_value = self.index.L(word)
+        self.cache[word] = return_value
+        return return_value
 
     """
     exp ::= term  | exp + term | exp - term

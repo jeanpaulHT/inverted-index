@@ -1,6 +1,6 @@
 from preprocessor import Preprocessor
 from index import Index
-from queries import *
+from queries import Query
 
 
 def write_index_to_file(index, file):
@@ -22,9 +22,11 @@ if __name__ == "__main__":
     index = Index(out_files)
     write_index_to_file(index.inverted_index, index_file)
 
-    # term1 = index.L("Bilbo")
-    # term2 = index.L("Anillo")
-    # term3 = index.L("Montaña")
+    term1 = index.L("Bilbo")
+    term2 = index.L("Anillo")
+    term3 = index.L("Montaña")
+    #
+    # print(term1, term2, term3)
     #
     # print(l_and(term1, term2))
     # print(l_or(term1, term2))
@@ -33,6 +35,7 @@ if __name__ == "__main__":
     # print(l_and(term2, term3))
     # print(l_or(term1, term3))
 
-    # query = Query(index, "(Bilbo and not Montaña) or (Montaña and not Bilbo)")
+    # query = Query(index, "Fangorn or (Bilbo and not Montaña) or (Montaña and not Bilbo)")
+
     query = Query(index, input("Ingrese una query: "))
     print("result: ", query.exp())
