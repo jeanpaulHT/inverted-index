@@ -2,7 +2,14 @@ from nltk.stem import SnowballStemmer
 
 
 class Index:
-    inverted_index = {}
+    inverted_index = dict()
+    _stemmer = SnowballStemmer('spanish')
+
+    def __init__(self, book_paths):
+        self.inverted_index = self._make_inverted_index(book_paths)
+
+    def L(self, word):
+        return self.inverted_index[Index._stemmer.stem(word.lower())]
 
     def _make_inverted_index(self, book_names):
         out_words = dict()
@@ -11,9 +18,9 @@ class Index:
             with open(book_name, encoding="utf-8") as file:
                 self._accumulate_frequency(book_number, file, out_words)
 
-        out_words = [(x, y, list(z)) for x, [y, z] in out_words.items()]
+        freq_table = [(x, y, list(z)) for x, [y, z] in out_words.items()]
 
-        ordered = sorted(out_words, key=lambda item: -item[1])
+        ordered = sorted(freq_table, key=lambda item: -item[1])
         trimmed = ordered[:500]
         filtered = sorted(trimmed, key=lambda item: item[0])
 
@@ -33,10 +40,3 @@ class Index:
             else:
                 out_words[line][0] += 1
                 out_words[line][1] |= {book_index}
-
-    def L(self, word):
-        stemmer = SnowballStemmer('spanish')
-        return self.inverted_index[stemmer.stem(word.lower())]
-
-    def __init__(self, book_paths):
-        self.inverted_index = self._make_inverted_index(book_paths)

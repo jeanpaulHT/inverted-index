@@ -14,7 +14,7 @@ if __name__ == "__main__":
     book_dir = "./texts/books"
     out_dir = "./texts/preprocessing"
     stop_list = "./texts/stoplist.txt"
-    index_file = "./texts/index.txt"
+    index_file = "./texts/_index.txt"
 
     preprocessor = Preprocessor(book_dir, out_dir, stop_list)
     out_files = preprocessor.preprocess(books)
@@ -22,9 +22,9 @@ if __name__ == "__main__":
     index = Index(out_files)
     write_index_to_file(index.inverted_index, index_file)
 
-    # term1 = index.L("Bilbo")
-    # term2 = index.L("Anillo")
-    # term3 = index.L("Montaña")
+    # term1 = _index.L("Bilbo")
+    # term2 = _index.L("Anillo")
+    # term3 = _index.L("Montaña")
     #
     # print(term1, term2, term3)
     #
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     # print(l_and(term2, term3))
     # print(l_or(term1, term3))
 
-    # query = Query(index, "Fangorn or (Bilbo and not Montaña) or (Montaña and not Bilbo)")
+    # query = Query(_index, "Fangorn or (Bilbo and not Montaña) or (Montaña and not Bilbo)")
 
     query = Query(index, input("Ingrese una query: "))
     print("result: ", query.eval())

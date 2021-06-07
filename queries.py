@@ -65,32 +65,63 @@ def l_and_not(arg1, arg2):
 
 class Query:
 
-    def __init__(self, index: Index, query: str):
+    def __init__(self, index: Index, query: str, use_cache: bool = True):
         processed = query.lower()
         processed = processed.replace(" and not ", " - ")
         processed = processed.replace(" and ", " * ")
         processed = processed.replace(" or ", " + ")
         processed = processed.replace("(", " ( ").replace(")", " ) ")
-        self.tokens = deque(processed.split())
-        self.index = index
-        self.cache = dict()
+        self._tokens = deque(processed.split())
+        self._index = index
+        self._use_cache = use_cache
+        if use_cache:
+            self.cache = dict()
 
-    def L(self, word):
-        if word in self.cache:
+    def eval(self):
+        value = self._expression()
+        Query._expect(self._current() is None, f"Expected end of query, got {self._current()}")
+        return value
+
+    def _expression(self):
+        result = self._terminal()
+        while self._current() == '+':
+            self._advance()
+            result = l_or(result, self._terminal())
+        return result
+
+    def _terminal(self):
+        result = self._value()
+        while self._current() in ('*', '-'):
+            if self._current() == '*':
+                self._advance()
+                result = l_and(result, self._terminal())
+            if self._current() == '-':
+                self._advance()
+                result = l_and_not(result, self._terminal())
+        return result
+
+    def _value(self):
+        Query._expect(self._current() is not None, "Finished parsing without success")
+        if self._current().isalpha():
+            return self._load(self._consume())
+
+        if self._current() == '(':
+            self._advance()
+            result = self._expression()
+            Query._expect(self._consume() == ")", "Unmatched parenthesis on query")
+            return result
+
+        Query._fail(f"Expected a word or a nested query, got {self._current()}")
+
+    def _load(self, word):
+        if self._use_cache and word in self.cache:
             return self.cache[word]
 
-        return_value = self.index.L(word)
-        self.cache[word] = return_value
+        return_value = self._index.L(word)
+        if self._use_cache:
+            self.cache[word] = return_value
+
         return return_value
-
-    """
-    exp ::= term  | exp + term | exp - term
-    term ::= factor | factor * term | factor / term
-    factor ::= number | ( exp )
-    """
-
-    def _current(self):
-        return self.tokens[0] if len(self.tokens) > 0 else None
 
     @staticmethod
     def _expect(boolean_expr, message):
@@ -101,49 +132,14 @@ class Query:
     def _fail(message):
         raise ValueError("Parser Error: ", message)
 
-    def eval(self):
-        value = self._exp()
-        Query._expect(self._current() is None, f"Expected end of query, got {self._current()}")
-        return value
-
-    def _exp(self):
-        result = self._term()
-        while self._current() == '+':
-            self._advance()
-            result = l_or(result, self._term())
-        return result
-
-    def _factor(self):
-        result = None
-
-        Query._expect(self._current() is not None, "Finished parsing without success")
-
-        if self._current().isalpha():
-            result = self.L(self._current())
-            self._advance()
-        elif self._current() == '(':
-            self._advance()
-            result = self._exp()
-            Query._expect(self._consume() == ")", "Unmatched parenthesis on query")
-        else:
-            Query._fail(f"Expected a word or a nested query, got {self._current()}")
-        return result
-
-    def _advance(self):
-        self.tokens.popleft()
+    def _current(self):
+        return self._tokens[0] if len(self._tokens) > 0 else None
 
     def _consume(self):
-        tmp = self.tokens[0]
+        tmp = self._current()
+        assert tmp is not None
         self._advance()
         return tmp
 
-    def _term(self):
-        result = self._factor()
-        while self._current() in ('*', '-'):
-            if self._current() == '*':
-                self._advance()
-                result = l_and(result, self._term())
-            if self._current() == '-':
-                self._advance()
-                result = l_and_not(result, self._term())
-        return result
+    def _advance(self):
+        self._tokens.popleft()
