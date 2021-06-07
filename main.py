@@ -3,9 +3,9 @@ from index import Index
 from queries import Query
 
 
-def write_index_to_file(index, file):
+def write_index_to_file(ivt_index, file):
     f = open(file, "w+", encoding="utf-8")
-    for word, cases in index.items():
+    for word, cases in ivt_index.items():
         f.write(f"{word}: " + ", ".join(map(str, cases)) + "\n")
 
 
@@ -22,9 +22,9 @@ if __name__ == "__main__":
     index = Index(out_files)
     write_index_to_file(index.inverted_index, index_file)
 
-    term1 = index.L("Bilbo")
-    term2 = index.L("Anillo")
-    term3 = index.L("Montaña")
+    # term1 = index.L("Bilbo")
+    # term2 = index.L("Anillo")
+    # term3 = index.L("Montaña")
     #
     # print(term1, term2, term3)
     #
@@ -38,4 +38,4 @@ if __name__ == "__main__":
     # query = Query(index, "Fangorn or (Bilbo and not Montaña) or (Montaña and not Bilbo)")
 
     query = Query(index, input("Ingrese una query: "))
-    print("result: ", query.exp())
+    print("result: ", query.eval())

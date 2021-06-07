@@ -5,34 +5,34 @@ class Index:
     inverted_index = {}
 
     def _make_inverted_index(self, book_names):
-        words = dict()
+        out_words = dict()
 
         for book_number, book_name in enumerate(book_names, start=1):
             with open(book_name, encoding="utf-8") as file:
-                self._count_into_words(book_number, file, words)
+                self._accumulate_frequency(book_number, file, out_words)
 
-        words = {x: [y, list(z)] for x, [y, z] in words.items()}
+        out_words = [(x, y, list(z)) for x, [y, z] in out_words.items()]
 
-        sorted_x = sorted(words.items(), key=lambda kv: -kv[1][0])
-        filtered = sorted_x[:500]
-        filtered = sorted(filtered, key=lambda item: item[0])
+        ordered = sorted(out_words, key=lambda item: -item[1])
+        trimmed = ordered[:500]
+        filtered = sorted(trimmed, key=lambda item: item[0])
 
-        for x, [_, z] in filtered:
+        for x, _, z in filtered:
             self.inverted_index[x] = z
 
         return self.inverted_index
 
     @staticmethod
-    def _count_into_words(book_index, file, words):
+    def _accumulate_frequency(book_index, file, out_words):
         lines = map(lambda x: x.strip(" \n"), file)
         lines = filter(lambda i: len(i) > 0, lines)
 
         for line in lines:
-            if line not in words:
-                words[line] = [1, {book_index}]
+            if line not in out_words:
+                out_words[line] = [1, {book_index}]
             else:
-                words[line][0] += 1
-                words[line][1] |= {book_index}
+                out_words[line][0] += 1
+                out_words[line][1] |= {book_index}
 
     def L(self, word):
         stemmer = SnowballStemmer('spanish')

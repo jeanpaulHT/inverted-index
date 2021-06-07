@@ -89,43 +89,61 @@ class Query:
     factor ::= number | ( exp )
     """
 
-    def current(self):
+    def _current(self):
         return self.tokens[0] if len(self.tokens) > 0 else None
 
-    def exp(self):
-        result = self.term()
-        while self.current() == '+':
-            self.next()
-            result = l_or(result, self.term())
+    @staticmethod
+    def _expect(boolean_expr, message):
+        if not boolean_expr:
+            Query._fail(message)
 
+    @staticmethod
+    def _fail(message):
+        raise ValueError("Parser Error: ", message)
+
+    def eval(self):
+        value = self._exp()
+        Query._expect(self._current() is None, f"Expected end of query, got {self._current()}")
+        return value
+
+    def _exp(self):
+        result = self._term()
+        while self._current() == '+':
+            self._advance()
+            result = l_or(result, self._term())
         return result
 
-    def factor(self):
+    def _factor(self):
         result = None
 
-        if self.current() is None:
-            raise ValueError()
+        Query._expect(self._current() is not None, "Finished parsing without success")
 
-        if self.current().isalpha():
-            result = self.L(self.current())
-            self.next()
-        elif self.current() == '(':
-            self.next()
-            result = self.exp()
-            self.next()
+        if self._current().isalpha():
+            result = self.L(self._current())
+            self._advance()
+        elif self._current() == '(':
+            self._advance()
+            result = self._exp()
+            Query._expect(self._consume() == ")", "Unmatched parenthesis on query")
+        else:
+            Query._fail(f"Expected a word or a nested query, got {self._current()}")
         return result
 
-    def next(self):
+    def _advance(self):
         self.tokens.popleft()
-        return self.current()
 
-    def term(self):
-        result = self.factor()
-        while self.current() in ('*', '-'):
-            if self.current() == '*':
-                self.next()
-                result = l_and(result, self.term())
-            if self.current() == '-':
-                self.next()
-                result = l_and_not(result, self.term())
+    def _consume(self):
+        tmp = self.tokens[0]
+        self._advance()
+        return tmp
+
+    def _term(self):
+        result = self._factor()
+        while self._current() in ('*', '-'):
+            if self._current() == '*':
+                self._advance()
+                result = l_and(result, self._term())
+            if self._current() == '-':
+                self._advance()
+                result = l_and_not(result, self._term())
         return result
