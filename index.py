@@ -36,7 +36,7 @@ class Index:
         return self.inverted_index
 
     @staticmethod
-    def _accumulate_frequency(book_index, file, out_words):
+    def _accumulate_frequency(book_index: int, file: TextIO, out_words: dict) -> None:
         lines = map(lambda x: x.strip(" \n"), file)
         lines = filter(lambda i: len(i) > 0, lines)
 

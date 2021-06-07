@@ -4,7 +4,7 @@ from typing import *
 
 class Preprocessor:
     skipped_symbols = {".", "?", "!", "¿", "<", ">", ",", "º", " ", ":", ";", "«", "»", "(", ")", "\n", "\0"}
-    stemmer = SnowballStemmer('spanish')
+    _stemmer = SnowballStemmer('spanish')
 
     def __init__(self, in_dir: str, out_dir: str, stop_list_path: str):
         self.stop_list = self._load_stop_list(stop_list_path)
@@ -27,7 +27,7 @@ class Preprocessor:
                     continue
                 for word in self._parse_line(line, self.skipped_symbols):
                     if word not in self.stop_list and not word.isnumeric():
-                        f_out.write(self.stemmer.stem(word) + "\n")
+                        f_out.write(self._stemmer.stem(word) + "\n")
 
     @staticmethod
     def _load_stop_list(stop_list_path: str) -> set:
