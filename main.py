@@ -78,12 +78,15 @@ if __name__ == "__main__":
     preprocessor.create_frequency_table()
     term1 = preprocessor.L("Bilbo")
     term2 = preprocessor.L("Anillo")
+    term3 = preprocessor.L("Funeral")
 
 
 
     print(l_and(term1, term2 ) )
     print(l_or(term1, term2 ) )
     print(l_and_not(term2, term1 ) )
+    print(l_and(term2, term3) )
+    print(l_or(term1, term3) )
 
 
 
