@@ -1,17 +1,23 @@
 from nltk.stem import SnowballStemmer
+from typing import *
 
 
 class Index:
-    inverted_index = dict()
     _stemmer = SnowballStemmer('spanish')
 
-    def __init__(self, book_paths):
+    def __init__(self, book_paths: Iterable[str]):
+        self.inverted_index = {}
         self.inverted_index = self._make_inverted_index(book_paths)
 
-    def L(self, word):
+    def dump(self, file_name: str) -> None:
+        f = open(file_name, "w+", encoding="utf-8")
+        for word, cases in self.inverted_index.items():
+            f.write(f"{word}: " + ", ".join(map(str, cases)) + "\n")
+
+    def L(self, word: str) -> list:
         return self.inverted_index[Index._stemmer.stem(word.lower())]
 
-    def _make_inverted_index(self, book_names):
+    def _make_inverted_index(self, book_names: Iterable[str]) -> Dict[str, List[int]]:
         out_words = dict()
 
         for book_number, book_name in enumerate(book_names, start=1):

@@ -2,76 +2,60 @@ from collections import deque
 from index import Index
 
 
-def l_and(arg1, arg2):
+def query_and(list_1: list, list_2: list) -> list:
     res = []
-    index1 = 0
-    index2 = 0
-
-    while index1 < len(arg1) and index2 < len(arg2):
-        if arg1[index1] == arg2[index2]:
-            res.append(arg1[index1])
+    index1, index2 = 0, 0
+    while index1 < len(list_1) and index2 < len(list_2):
+        if list_1[index1] < list_2[index2]:
             index1 += 1
+        elif list_2[index2] < list_1[index1]:
             index2 += 1
-        elif arg1[index1] < arg2[index2]:
-            index1 += 1
         else:
+            res.append(list_1[index1])
+            index1 += 1
             index2 += 1
     return res
 
 
-def l_or(arg1, arg2):
+def query_or(list_1: list, list_2: list) -> list:
     res = []
-    index1 = 0
-    index2 = 0
-
-    while index1 < len(arg1) or index2 < len(arg2):
-        if index1 < len(arg1) and index2 < len(arg2):
-            if arg1[index1] == arg2[index2]:
-                res.append(arg1[index1])
-                index1 += 1
-                index2 += 1
-            elif arg1[index1] < arg2[index2]:
-                res.append(arg1[index1])
-                index1 += 1
-            else:
-                res.append(arg2[index2])
-                index2 += 1
+    i, j = 0, 0
+    while True:
+        if i == len(list_1):
+            return res + list_2[j:]
+        if j == len(list_2):
+            return res + list_1[i:]
+        if list_1[i] < list_2[j]:
+            res.append(list_1[i])
+            i += 1
+        elif list_2[j] < list_1[i]:
+            res.append(list_2[j])
+            j += 1
         else:
-            if index2 == len(arg2):
-                res.append(arg1[index1])
-                index1 += 1
-            else:
-                res.append(arg2[index2])
-                index2 += 1
-    return res
+            res.append(list_1[i])
+            i += 1
+            j += 1
 
 
-def l_and_not(arg1, arg2):
+def query_and_not(list_1: list, list_2: list) -> list:
     res = []
-    index1 = 0
-    index2 = 0
-
-    while index1 < len(arg1):
-        if arg1[index1] == arg2[index2]:
-            index1 += 1
-            index2 += 1
-        elif arg1[index1] < arg2[index2]:
-            res.append(arg1[index1])
-            index1 += 1
+    i, j = 0, 0
+    while i < len(list_1):
+        if list_1[i] < list_2[j]:
+            res.append(list_1[i])
+            i += 1
+        elif list_2[j] < list_1[i]:
+            j += 1
         else:
-            index2 += 1
+            i += 1
+            j += 1
     return res
 
 
 class Query:
 
     def __init__(self, index: Index, query: str, use_cache: bool = True):
-        processed = query.lower()
-        processed = processed.replace(" and not ", " - ")
-        processed = processed.replace(" and ", " * ")
-        processed = processed.replace(" or ", " + ")
-        processed = processed.replace("(", " ( ").replace(")", " ) ")
-        self._tokens = deque(processed.split())
+        self._tokens = self._tokenize_query(query)
         self._index = index
         self._use_cache = use_cache
         if use_cache:
@@ -86,7 +70,7 @@ class Query:
         result = self._terminal()
         while self._current() == '+':
             self._advance()
-            result = l_or(result, self._terminal())
+            result = query_or(result, self._terminal())
         return result
 
     def _terminal(self):
@@ -94,10 +78,10 @@ class Query:
         while self._current() in ('*', '-'):
             if self._current() == '*':
                 self._advance()
-                result = l_and(result, self._terminal())
+                result = query_and(result, self._terminal())
             if self._current() == '-':
                 self._advance()
-                result = l_and_not(result, self._terminal())
+                result = query_and_not(result, self._terminal())
         return result
 
     def _value(self):
@@ -113,7 +97,7 @@ class Query:
 
         Query._fail(f"Expected a word or a nested query, got {self._current()}")
 
-    def _load(self, word):
+    def _load(self, word: str) -> list:
         if self._use_cache and word in self.cache:
             return self.cache[word]
 
@@ -124,12 +108,12 @@ class Query:
         return return_value
 
     @staticmethod
-    def _expect(boolean_expr, message):
+    def _expect(boolean_expr: bool, message: str) -> None:
         if not boolean_expr:
             Query._fail(message)
 
     @staticmethod
-    def _fail(message):
+    def _fail(message: str) -> None:
         raise ValueError("Parser Error: ", message)
 
     def _current(self):
@@ -143,3 +127,12 @@ class Query:
 
     def _advance(self):
         self._tokens.popleft()
+
+    @staticmethod
+    def _tokenize_query(query):
+        processed = query.lower()
+        processed = processed.replace(" and not ", " - ")
+        processed = processed.replace(" and ", " * ")
+        processed = processed.replace(" or ", " + ")
+        processed = processed.replace("(", " ( ").replace(")", " ) ")
+        return deque(processed.split())

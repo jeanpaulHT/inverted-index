@@ -1,16 +1,17 @@
 from nltk.stem import SnowballStemmer
+from typing import *
 
 
 class Preprocessor:
     skipped_symbols = {".", "?", "!", "¿", "<", ">", ",", "º", " ", ":", ";", "«", "»", "(", ")", "\n", "\0"}
     stemmer = SnowballStemmer('spanish')
 
-    def __init__(self, in_dir, out_dir, stop_list_path):
+    def __init__(self, in_dir: str, out_dir: str, stop_list_path: str):
         self.stop_list = self._load_stop_list(stop_list_path)
         self.in_dir = f"./{in_dir}/"
         self.out_dir = f"./{out_dir}/"
 
-    def preprocess(self, files):
+    def preprocess(self, files: Iterable[str]):
         out_files = []
         for file in files:
             in_path, out_path = self.in_dir + file, self.out_dir + file
@@ -19,7 +20,7 @@ class Preprocessor:
 
         return out_files
 
-    def _preprocess_file(self, in_path, out_path):
+    def _preprocess_file(self, in_path: str, out_path: str) -> None:
         with open(in_path, encoding="utf-8") as f_in, open(out_path, "w+", encoding="utf-8") as f_out:
             for line in f_in:
                 if line == "\n" and line == " ":
@@ -29,7 +30,7 @@ class Preprocessor:
                         f_out.write(self.stemmer.stem(word) + "\n")
 
     @staticmethod
-    def _load_stop_list(stop_list_path):
+    def _load_stop_list(stop_list_path: str) -> set:
         stop_list = set()
         with open(stop_list_path, encoding="ISO-8859-1") as file:
             for line in file:
@@ -40,7 +41,7 @@ class Preprocessor:
         return stop_list
 
     @staticmethod
-    def _parse_line(line, skipped):
+    def _parse_line(line: str, skipped: Iterable) -> list:
         word_list = line.split(" ")
         res = list()
         for word in word_list:
